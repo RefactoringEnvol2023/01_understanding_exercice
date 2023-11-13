@@ -1,40 +1,40 @@
 from bottle.bottle import (
-    MEMORY_THRESHOLD,
-    SENSOR_STATUS_IDLE,
-    SENSOR_STATUS_ACQUISITION_DONE,
-    ACQUISITION_IS_VALID,
-    ACQUISITION_IS_INVALID,
+    MM_THOLD,
+    SSR_ST_IDLE,
+    SSR_ST_ACQ_OK,
+    ACQ_VAL,
+    ACQ_INVAL,
     Memory,
     Sensor,
-    ReachThresholdException,
-    AcquisitionInvalidException,
+    ReachTholdEx,
+    AcqInvalEx,
 )
 
-def check_acquisition(acquisition):
-    return ACQUISITION_IS_VALID if acquisition else ACQUISITION_IS_INVALID
+def chkacq(acq):
+    return ACQ_VAL if acq else ACQ_INVAL
 
 
-def acquire_data_from_sensor(sensor: Sensor, memory: Memory):
-    if memory.get_ratio() > MEMORY_THRESHOLD:
+def acqdata(s: Sensor, mem: Memory):
+    if mem.ratio() > MM_THOLD:
         print(f"Memory is full. Send data")
-        raise ReachThresholdException()
+        raise ReachTholdEx()
 
-    if sensor.get_status() == SENSOR_STATUS_IDLE:
-        sensor.start_acquisition()
-        if sensor.get_status() == SENSOR_STATUS_ACQUISITION_DONE:
+    if s.st() == SSR_ST_IDLE:
+        s.startacq()
+        if s.st() == SSR_ST_ACQ_OK:
             print("Done")
             while True:
-                acquisition = sensor.pop_acquisition()
-                if acquisition is None:
+                acq = s.popacq()
+                if acq is None:
                     break
-                acquisition_status = check_acquisition(acquisition)
-                print(acquisition_status)
-                if acquisition_status == ACQUISITION_IS_VALID:
-                    memory.push(acquisition)
+                acq_st = chkacq(acq)
+                print(acq_st)
+                if acq_st == ACQ_VAL:
+                    mem.push(acq)
                 else:
-                    raise AcquisitionInvalidException("Invalid acquisition")
+                    raise AcqInvalEx("Invalid acquisition")
         else:
-            raise AcquisitionInvalidException("Invalid acquisition")
+            raise AcqInvalEx("Invalid acquisition")
     else:
         print(f"Sensor is busy")
 

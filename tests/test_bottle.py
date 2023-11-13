@@ -1,8 +1,8 @@
 import pytest
 
-from bottle.runner import acquire_data_from_sensor
-from bottle.bottle import SENSOR_STATUS_IDLE, SimpleMemory, SimpleSensor, ReachThresholdException, \
-    AcquisitionInvalidException
+from bottle.runner import acqdata
+from bottle.bottle import SSR_ST_IDLE, SimpleMemory, SimpleSensor, ReachTholdEx, \
+    AcqInvalEx
 
 
 def test_memory_at_init():
@@ -10,9 +10,9 @@ def test_memory_at_init():
     memory = SimpleMemory()
 
     # __When__Then__
-    assert memory.get_ratio() == pytest.approx(0.0)
-    assert memory.get_nb_of_acquisitions() == 0
-    assert memory.get_threshold() == pytest.approx(80.0)
+    assert memory.ratio() == pytest.approx(0.0)
+    assert memory.nbacq() == 0
+    assert memory.thold() == pytest.approx(80.0)
 
 
 def test_memory_push():
@@ -23,8 +23,8 @@ def test_memory_push():
     memory.push({})
 
     # __Then
-    assert memory.get_ratio() == pytest.approx(20.0)
-    assert memory.get_nb_of_acquisitions() == 1
+    assert memory.ratio() == pytest.approx(20.0)
+    assert memory.nbacq() == 1
 
 
 def test_acquire_data_from_sensor():
@@ -33,11 +33,11 @@ def test_acquire_data_from_sensor():
     memory = SimpleMemory()
 
     # __When__
-    acquire_data_from_sensor(sensor=sensor, memory=memory)
+    acqdata(s=sensor, mem=memory)
 
     # __Then__
-    assert memory.get_nb_of_acquisitions() == 1
-    assert sensor.get_status() == SENSOR_STATUS_IDLE
+    assert memory.nbacq() == 1
+    assert sensor.st() == SSR_ST_IDLE
 
 
 def test_to_many_times_acquire_data_from_sensor_raise_exception():
@@ -49,20 +49,20 @@ def test_to_many_times_acquire_data_from_sensor_raise_exception():
     reached = False
     for _ in range(10):
         try:
-            acquire_data_from_sensor(sensor=sensor, memory=memory)
-        except ReachThresholdException:
+            acqdata(s=sensor, mem=memory)
+        except ReachTholdEx:
             reached = True
 
     # __Then__
     assert reached is True
-    assert memory.get_ratio() >= 80.0
+    assert memory.ratio() >= 80.0
 
 
 def test_wrong_status_raise_exception():
     # __Given__
     class WrongSensor(SimpleSensor):
-        def start_acquisition(self):
-            self._status = SENSOR_STATUS_IDLE
+        def startacq(self):
+            self._status = SSR_ST_IDLE
 
     sensor = WrongSensor()
     memory = SimpleMemory()
@@ -71,8 +71,8 @@ def test_wrong_status_raise_exception():
     invalid_raised = False
     for _ in range(10):
         try:
-            acquire_data_from_sensor(sensor=sensor, memory=memory)
-        except AcquisitionInvalidException:
+            acqdata(s=sensor, mem=memory)
+        except AcqInvalEx:
             invalid_raised = True
     # __Then__
 
