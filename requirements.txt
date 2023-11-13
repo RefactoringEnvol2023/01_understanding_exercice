@@ -1,0 +1,2 @@
+ # see https://caremad.io/posts/2013/07/setup-vs-requirement/ (article referenced on the pip documentation https://pip-python3.readthedocs.io/en/latest/user_guide.html#requirements-files) requirements.txt
+-e .

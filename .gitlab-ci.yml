@@ -1,0 +1,34 @@
+# Using the official Python Docker image as default
+image: python:3.10
+
+# Columns of the pipeline
+stages:
+  - quality
+  - deploy
+
+cache:
+  paths:
+    - .cache/pip
+
+before_script:
+  - pip install --upgrade pip
+  - python -m venv .venv
+  - source .venv/bin/activate
+
+tests:
+  stage: quality
+  script:
+    - pip install .[dev]
+    - pytest tests/
+  allow_failure: true
+
+pages:
+  stage: deploy
+  script:
+    - pip install .[doc]
+    - sphinx-apidoc -o docs/source/api src/bottle
+    - sphinx-build -b html docs/source public
+  artifacts:
+    paths:
+      - public
+    expire_in: 90 days
