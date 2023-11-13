@@ -26,6 +26,7 @@ Le runner commande l'acquisition des données.
 * Dès qu'elle est terminée,
 ** il vérifie l'état de l'acquisition 
 ** il transfère l'acquisition dans la mémoire.
+* Si l'acquisition est vide, le processus s'arrête
 
 * Exceptions
 ** Si la capteur n'est pas au repos, il lève une exception
