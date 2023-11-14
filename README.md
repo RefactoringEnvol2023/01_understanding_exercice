@@ -36,7 +36,6 @@ Le runner commande l'acquisition des données.
 
 ## Objectifs
 
-### Donner des noms correctes aux fonctions du capteur
-
+### Donner des noms correctes
 
 ### Scinder la boucle  
